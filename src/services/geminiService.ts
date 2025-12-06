@@ -36,7 +36,7 @@ const designTool: FunctionDeclaration = {
 export const createChatSession = (): Chat => {
   const ai = getAiClient();
   return ai.chats.create({
-    model: 'gemini-3-pro-preview',
+    model: 'gemini-2.5-pro',
     config: {
       systemInstruction: `You are a Senior Web Design Engineer and Accessibility Expert with mastery of all programming languages (React, Astro, Python, Rust, etc.) and design systems. 
       
@@ -64,30 +64,34 @@ export const createChatSession = (): Chat => {
 };
 
 // Feature 2: Generate Images with Nano Banana Pro (gemini-3-pro-image-preview)
+// Feature 2: Generate Images with Nano Banana Pro (Placeholder until Imagen is enabled)
 export const generateImageAssets = async (prompt: string, size: ImageSize): Promise<string> => {
+  // Currently, Imagen models (3.0/4.0) and gemini-3-pro-image are not generating images on this key.
+  // We use gemini-2.5-pro to prevent 404 crashes, but it will likely return text.
   const ai = getAiClient();
 
   try {
+    console.log("Attempting to generate image asset with gemini-2.5-pro...");
     const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-image-preview',
+      model: 'gemini-2.5-pro',
       contents: {
-        parts: [{ text: prompt }]
-      },
-      config: {
-        imageConfig: {
-          imageSize: size,
-          aspectRatio: "16:9" // Good for web banners
-        }
+        parts: [{ text: `Generate a visual description for: ${prompt}` }]
       }
     });
 
-    // Extract image
+    // gemini-2.5-pro returns text, not images. 
+    // If the API key eventually gets Imagen access, we would switch back to 'imagen-3.0-generate-001'.
+    const textResponse = response.text || "No text generated";
+    console.warn("Gemini 2.5 Pro response (Text-only):", textResponse);
+
+    // Check if by miracle we got an image (unlikely)
     for (const part of response.candidates?.[0]?.content?.parts || []) {
       if (part.inlineData) {
         return `data:image/png;base64,${part.inlineData.data}`;
       }
     }
-    throw new Error("No image generated in response");
+
+    throw new Error("Generic/Text models cannot generate images. Please enable Imagen API on your Google Cloud Project.");
   } catch (error) {
     console.error("Image generation failed:", error);
     throw error;
@@ -103,7 +107,7 @@ export const editImage = async (base64Image: string, prompt: string): Promise<st
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
+      model: 'gemini-2.5-pro',
       contents: {
         parts: [
           {
@@ -153,7 +157,7 @@ export const generateProjectBlueprint = async (design: DesignSystem): Promise<Bl
   `;
 
   const response = await ai.models.generateContent({
-    model: 'gemini-3-pro-preview', // Using Pro for complex reasoning
+    model: 'gemini-2.5-pro', // Using 2.5 Pro for Blueprint
     contents: prompt,
     config: {
       responseMimeType: "application/json"
