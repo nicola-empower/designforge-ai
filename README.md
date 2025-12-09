@@ -2,6 +2,8 @@
 
 DesignForge AI is a comprehensive web design visualisation and blueprinting tool powered by Google's Gemini models. It allows developers and designers to conceptualise interfaces instantly, generate assets, and create technical specifications for their projects.
 
+<img width="2828" height="1504" alt="image" src="https://github.com/user-attachments/assets/8b49bb65-9f1d-435f-8178-f4f1fd343965" />
+
 ## Features
 
 ### 1. Interactive Design Playground
